@@ -39,24 +39,16 @@ export async function aseo_sertex(municipality,rol, dv) {
     }
     await page.waitForSelector(
       "body > div > div.container.border > div > form > table:nth-child(4) > tbody > tr:nth-child(5) > td:nth-child(2) > strong > font",
-      { timeout: 5000 }
+      { timeout: 3000 }
     );
 
-    const result = await page.evaluate(() => {
-      const cant = document.querySelectorAll("b");
-      const texts = [];
-
-      cant.forEach((can) => {
-        texts.push(can.innerText);
-      });
-      return texts;
+    const total = await page.evaluate(() => {
+      const cant = document.querySelector('div.container.border > div > form > table:nth-child(10) > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(1) > div > font > b').innerText
+      const debt= parseInt(cant.substring(cant.indexOf('$')+2,cant.length).replace('.',''))
+      return debt
     });
 
-    let total = result[result.length - 1];
-    total = total
-      .substring(total.indexOf("$") + 2, total.length)
-      .replace(".", "");
-    total = parseInt(total);
+
     await browser.close();
     if (total > 0) {
       return {
