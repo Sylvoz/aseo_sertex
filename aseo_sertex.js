@@ -18,9 +18,19 @@ export async function aseo_sertex(municipality,rol, dv) {
   // Puppeteer
   const browser = await puppeteer.launch({
     headless: "new",
-    defaultViewport: { width: 1280, height: 720 },
-  });
-
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  })
   const page = await browser.newPage();
 
   try {
@@ -30,9 +40,7 @@ export async function aseo_sertex(municipality,rol, dv) {
       return {
         data: [
           {
-            id: rol + "-" + dv,
-            measurement_date: fechaFormateada,
-            invoice_amount: "Sin deuda/No registrado",
+            invoice_amount: "Sin deuda/No registrado"
           },
         ],
       };
@@ -52,32 +60,25 @@ export async function aseo_sertex(municipality,rol, dv) {
     await browser.close();
     if (total > 0) {
       return {
-        data: [
+        data: 
           {
-            id: rol + "-" + dv,
-            measurement_date: fechaFormateada,
-            invoice_amount: total,
-          },
-        ],
+            invoice_amount: total
+          }
       };
     } else {
       return {
-        data: [
+        data: 
           {
-            id: rol + "-" + dv,
-            measurement_date: fechaFormateada,
-            invoice_amount: "Sin deuda/No registrado",
-          },
-        ],
+            invoice_amount: "Sin deuda/No registrado"
+          }
       };
     }
   } catch {
     return {
-      data: [
+      data: 
         {
           invoice_amount: 'Error al cargar página',
-        },
-      ],
+        }
     };
   }
 }
